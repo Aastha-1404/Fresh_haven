@@ -1,0 +1,228 @@
+<% layout('layouts/boilerplates.ejs') %>
+
+    <main class="listing-show-page">
+        <a class="listing-back-link" href="/listings">
+            <i class="fa-solid fa-arrow-left"></i> Back to listings
+        </a>
+
+        <article class="listing-detail-card">
+            <div class="listing-detail-visual">
+                <img src="<%= listing.image.url %>" alt="<%= listing.title %>">
+                <span class="listing-detail-badge"><i class="fa-solid fa-house"></i> Fresh Haven stay</span>
+            </div>
+
+            <div class="listing-detail-content">
+                <p class="listing-detail-eyebrow"><i class="fa-solid fa-house"></i> Fresh Haven stay</p>
+                <p class="listing-location"><i class="fa-solid fa-location-dot"></i>
+                    <%= listing.location %>, <%= listing.country %>
+                </p>
+                <h1>
+                    <%= listing.title %>
+                </h1>
+                <p class="listing-owner">
+                    <strong>Owner:</strong> <%= listing.owner && listing.owner.username ? listing.owner.username : 'Unknown' %>
+                </p>
+                <p class="listing-detail-description">
+                    <%= listing.description %>
+                </p>
+
+                <div class="listing-detail-facts">
+                    <div class="listing-detail-price">
+                        <strong>&#8377;<%= listing.price.toLocaleString("en-IN") %></strong>
+                        <span>per night</span>
+                    </div>
+                    <div class="listing-detail-review-summary">
+                        <i class="fa-solid fa-star"></i>
+                        <strong><%= listing.reviews.length %></strong>
+                        <span>reviews</span>
+                    </div>
+                </div>
+
+                <div class="listing-detail-actions">
+                    <a class="listing-edit-button" href="/listings/<%= listing._id %>/edit">
+                        <i class="fa-solid fa-pen"></i> Edit listing
+                    </a>
+                    <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE"
+                        onsubmit="return confirm('Are you sure you want to delete this listing? This action cannot be undone.');">
+                        <button class="listing-delete-button" type="submit">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </article>
+
+        <section class="listing-map-panel" aria-label="Location map">
+            <div class="listing-map-header">
+                <div>
+                    <p class="section-eyebrow">Explore the area</p>
+                    <h2>Map</h2>
+                </div>
+                <span class="listing-map-location"><%= listing.location %>, <%= listing.country %></span>
+            </div>
+
+            <div id="listing-map" class="listing-map-frame" data-location="<%= listing.location %>" data-country="<%= listing.country %>"></div>
+        </section>
+
+        <script>
+            const mapContainer = document.getElementById('listing-map');
+            if (mapContainer && typeof mapboxgl !== 'undefined') {
+                const placeQuery = `${mapContainer.dataset.location || ''} ${mapContainer.dataset.country || ''}`.trim();
+                const token = '<%= mapboxToken || "" %>';
+
+                if (token) {
+                    mapboxgl.accessToken = token;
+
+                    fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(placeQuery)}.json?access_token=${token}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const feature = data.features && data.features[0];
+                            if (!feature || !feature.center) {
+                                return;
+                            }
+
+                            const map = new mapboxgl.Map({
+                                container: 'listing-map',
+                                style: 'mapbox://styles/mapbox/streets-v11',
+                                center: feature.center,
+                                zoom: 11
+                            });
+
+                            const popup = new mapboxgl.Popup({ offset: 20 })
+                                .setHTML(`
+                                    <div class="map-popup">
+                                        <strong><%= listing.title %></strong>
+                                        <span><%= listing.location %>, <%= listing.country %></span>
+                                    </div>
+                                `);
+
+                            new mapboxgl.Marker({ color: '#fe424d' })
+                                .setLngLat(feature.center)
+                                .setPopup(popup)
+                                .addTo(map);
+                        })
+                        .catch(() => {
+                            mapContainer.innerHTML = '<div class="map-fallback">Location map unavailable right now.</div>';
+                        });
+                } else {
+                    mapContainer.innerHTML = '<div class="map-fallback">Mapbox token is missing.</div>';
+                }
+            }
+        </script>
+
+        <section class="listing-review-panel">
+            <div class="listing-reviews-section">
+                <div class="listing-reviews-header">
+                    <div>
+                        <p class="section-eyebrow">Guest feedback</p>
+                        <h2>Reviews</h2>
+                    </div>
+                    <span class="reviews-count"><%= listing.reviews.length %> <%= listing.reviews.length === 1 ? 'review' : 'reviews' %></span>
+                </div>
+
+                <form id="reviewForm" action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="review-form">
+                    <div class="review-form-heading">
+                        <div>
+                            <h3>Share your experience</h3>
+                            <p>Your feedback helps future guests choose their stay.</p>
+                        </div>
+                        <i class="fa-regular fa-comment-dots" aria-hidden="true"></i>
+                    </div>
+                    <div class="form-group">
+                        <label id="rating-label">Rating</label>
+                        <div class="rating-stars">
+                            <% for (let i = 5; i >= 1; i--) { %>
+                                <input type="radio" id="star<%= i %>" name="rating" value="<%= i %>" required>
+                                <label for="star<%= i %>" title="<%= i %> stars">★</label>
+                            <% } %>
+                        </div>
+                        <div id="ratingError" class="error-message">Please select a rating.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comment">Your review</label>
+                        <textarea id="comment" name="comment" class="form-control" minlength="3" maxlength="500" required aria-describedby="commentHint" placeholder="Write your experience..."></textarea>
+                        <span id="commentHint" class="field-hint">3 to 500 characters</span>
+                        <div id="commentError" class="error-message">Comment must be between 3 and 500 characters.</div>
+                    </div>
+
+                    <button type="submit" class="review-submit-btn">Submit Review</button>
+                </form>
+
+                <% if (listing.reviews.length === 0) { %>
+                    <div class="reviews-empty">
+                        <p>No reviews yet. Be the first to share your experience.</p>
+                    </div>
+                <% } else { %>
+                    <div class="reviews-grid">
+                        <% listing.reviews.forEach(review => { %>
+                            <article class="review-card">
+                                <div class="review-card-top">
+                                    <div class="review-stars">
+                                        <% for (let i = 1; i <= 5; i++) { %>
+                                            <span class="<%= i <= review.rating ? 'filled' : '' %>">★</span>
+                                        <% } %>
+                                    </div>
+
+                                    <div class="review-card-actions">
+                                        <span class="review-label">
+                                            Review by <%= review.author && review.author.username ? review.author.username : 'Guest' %>
+                                        </span>
+                                        <span class="review-date">
+                                            <%= new Date(review.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                                        </span>
+
+                                        <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE"
+                                            onsubmit="return confirm('Delete this review?');">
+                                            <button type="submit" class="review-delete-button" aria-label="Delete review">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <p class="review-comment"><i class="fa-solid fa-quote-left" aria-hidden="true"></i><%= review.comment %></p>
+                            </article>
+                        <% }) %>
+                    </div>
+                <% } %>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const form = document.getElementById('reviewForm');
+                        const ratingInputs = document.querySelectorAll('input[name="rating"]');
+                        const commentInput = document.getElementById('comment');
+                        const ratingError = document.getElementById('ratingError');
+                        const commentError = document.getElementById('commentError');
+
+                        function clearErrors() {
+                            ratingError.style.display = 'none';
+                            commentError.style.display = 'none';
+                        }
+
+                        form.addEventListener('submit', (event) => {
+                            clearErrors();
+
+                            const hasRating = [...ratingInputs].some((input) => input.checked);
+                            const comment = commentInput.value.trim();
+                            let isValid = true;
+
+                            if (!hasRating) {
+                                ratingError.style.display = 'block';
+                                isValid = false;
+                            }
+
+                            if (comment.length < 3 || comment.length > 500) {
+                                commentError.style.display = 'block';
+                                isValid = false;
+                            }
+
+                            if (!isValid) {
+                                event.preventDefault();
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </section>
+    </main>

@@ -1,0 +1,106 @@
+<% layout('layouts/boilerplates.ejs') %>
+<body>
+    <main class="listings-page">
+            <section class="listing-filter-bar" aria-label="Listing filters">
+                <div class="filter-scroll" role="tablist" aria-label="Search filters">
+                    <a class="filter-chip <%= !selectedCategory ? 'active' : '' %>" href="/listings" aria-label="All stays">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <span>All stays</span>
+                    </a>
+                    <a class="filter-chip <%= selectedCategory === 'farms' ? 'active' : '' %>" href="/listings?category=farms" aria-label="Farms">
+                        <i class="fa-solid fa-tractor"></i>
+                        <span>Farms</span>
+                    </a>
+                    <a class="filter-chip <%= selectedCategory === 'rooms' ? 'active' : '' %>" href="/listings?category=rooms" aria-label="Rooms">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Rooms</span>
+                    </a>
+                    <a class="filter-chip <%= selectedCategory === 'amazing-views' ? 'active' : '' %>" href="/listings?category=amazing-views" aria-label="Amazing views">
+                        <i class="fa-solid fa-mountain-sun"></i>
+                        <span>Amazing views</span>
+                    </a>
+                    <a class="filter-chip <%= selectedCategory === 'iconic-sites' ? 'active' : '' %>" href="/listings?category=iconic-sites" aria-label="Iconic sites">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>Iconic sites</span>
+                    </a>
+                    <a class="filter-chip <%= selectedCategory === 'beach' ? 'active' : '' %>" href="/listings?category=beach" aria-label="Beach">
+                        <i class="fa-solid fa-water"></i>
+                        <span>Beach</span>
+                    </a>
+                    <a class="filter-chip <%= selectedCategory === 'cabins' ? 'active' : '' %>" href="/listings?category=cabins" aria-label="Cabins">
+                        <i class="fa-solid fa-cabin"></i>
+                        <span>Cabins</span>
+                    </a>
+                </div>
+
+                <button class="filter-toggle" type="button" aria-pressed="false" aria-label="Display total before taxes">
+                    <span class="filter-toggle-label">Display total before taxes</span>
+                    <span class="filter-toggle-switch" aria-hidden="true">
+                        <span class="filter-toggle-knob"></span>
+                    </span>
+                </button>
+            </section>
+
+            <%- include('filter.ejs', { selectedCategory, searchTerm, searchBy, minPrice, maxPrice }) %>
+
+        <section class="listings-heading">
+            <div>
+                <p class="listings-eyebrow">Explore your next escape</p>
+                <!-- <h1>All Listings</h1> -->
+                <p class="listings-intro">Handpicked stays for slow mornings, fresh air, and memorable trips.</p>
+            </div>
+            <!-- <a class="listings-add-button" href="/listings/new">
+                <i class="fa-solid fa-plus"></i>
+                Add a listing
+            </a> -->
+        </section>
+
+        <% if (allListings.length === 0) { %>
+            <div class="listings-empty">
+                <i class="fa-solid fa-house-circle-exclamation"></i>
+                <h2>No listings yet</h2>
+                <p>Be the first to add a beautiful place to Fresh Haven.</p>
+                <a href="/listings/new">Create the first listing</a>
+            </div>
+        <% } else { %>
+            <section class="listings-grid" aria-label="Available listings">
+                <% for (let listing of allListings) { %>
+                    <article class="listing-card">
+                        <a class="listing-image-link" href="/listings/<%= listing.id %>">
+                            <img class="listing-image" src="<%= listing.image.url %>" alt="<%= listing.title %>">
+                        </a>
+                        <div class="listing-card-body">
+                            <p class="listing-location"><i class="fa-solid fa-location-dot"></i> <%= listing.location %>, <%= listing.country %></p>
+                            <h2><%= listing.title %></h2>
+                            <p class="listing-description"><%= listing.description %></p>
+                            <div class="listing-card-footer">
+                                <span class="listing-price" data-base-price="<%= listing.price %>">&#8377;<span class="listing-price-value"><%= listing.price.toLocaleString("en-IN") %></span> <small>/ night</small></span>
+                                <a class="listing-view-link" href="/listings/<%= listing.id %>">View stay <i class="fa-solid fa-arrow-right"></i></a>
+                            </div>
+        </div>
+                    </article>
+                <% } %>
+            </section>
+        <% } %>
+    </main>
+
+    <script>
+        const taxToggle = document.querySelector('.filter-toggle');
+        const taxRate = 0.18;
+
+        if (taxToggle) {
+            taxToggle.addEventListener('click', () => {
+                const includesTaxes = taxToggle.getAttribute('aria-pressed') === 'true';
+                taxToggle.setAttribute('aria-pressed', String(!includesTaxes));
+
+                document.querySelectorAll('.listing-price').forEach((priceElement) => {
+                    const basePrice = Number(priceElement.dataset.basePrice);
+                    const displayedPrice = includesTaxes ? basePrice : basePrice * (1 + taxRate);
+                    priceElement.querySelector('.listing-price-value').textContent = Math.round(displayedPrice).toLocaleString('en-IN');
+                });
+            });
+        }
+    </script>
+</body>
+
+

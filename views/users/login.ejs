@@ -1,0 +1,48 @@
+<% layout('layouts/boilerplates.ejs') %>
+
+<main class="signup-page">
+    <section class="signup-card" aria-labelledby="login-title">
+        <div class="signup-card-heading">
+            <span class="signup-icon" aria-hidden="true"><i class="fa-solid fa-right-to-bracket"></i></span>
+            <p class="listings-eyebrow">Welcome back</p>
+            <h1 id="login-title">Log in to Fresh Haven</h1>
+            <p>Return to your favorite stays and discover somewhere new.</p>
+        </div>
+
+        <form class="signup-form" method="POST" action="/users/login<% if (redirecturl) { %>?redirecturl=<%= encodeURIComponent(redirecturl) %><% } %>" novalidate onsubmit="this.classList.add('was-validated'); return this.checkValidity();">
+            <div class="signup-field">
+                <label for="username">Username</label>
+                <div class="signup-input-wrap">
+                    <i class="fa-regular fa-user" aria-hidden="true"></i>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" minlength="3" maxlength="30" autocomplete="username" required>
+                </div>
+                <div class="invalid-feedback">Enter a valid username with at least 3 characters.</div>
+            </div>
+
+            <div class="signup-field">
+                <label for="password">Password</label>
+                <div class="signup-input-wrap">
+                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" minlength="8" autocomplete="current-password" required>
+                    <button class="password-toggle" type="button" aria-label="Show password" title="Show password" onclick="togglePassword('password', this)"><i class="fa-regular fa-eye" aria-hidden="true"></i></button>
+                </div>
+                <div class="invalid-feedback">Enter a valid password with at least 8 characters.</div>
+            </div>
+
+            <button class="signup-submit" type="submit"><i class="fa-solid fa-arrow-right-to-bracket"></i> Log in</button>
+        </form>
+
+        <p class="signup-login-prompt">New to Fresh Haven? <a href="/users/signup">Create an account</a></p>
+    </section>
+</main>
+
+<script>
+    function togglePassword(inputId, button) {
+        const input = document.getElementById(inputId);
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+        button.setAttribute('title', isHidden ? 'Hide password' : 'Show password');
+        button.innerHTML = `<i class="fa-regular fa-eye${isHidden ? '-slash' : ''}" aria-hidden="true"></i>`;
+    }
+</script>

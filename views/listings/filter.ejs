@@ -1,0 +1,26 @@
+<form class="listing-filters-form" method="GET" action="/listings" aria-label="Listing filters">
+    <input type="hidden" name="search" value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>">
+    <input type="hidden" name="searchBy" value="<%= typeof searchBy !== 'undefined' ? searchBy : 'all' %>">
+    <input type="hidden" name="category" value="<%= typeof selectedCategory !== 'undefined' ? selectedCategory : '' %>">
+
+    <div class="listing-filter-field">
+        <label for="min-price">Minimum price</label>
+        <div class="listing-filter-input">
+            <span>&#8377;</span>
+            <input id="min-price" type="number" name="minPrice" value="<%= typeof minPrice !== 'undefined' ? minPrice : '' %>" placeholder="Min" min="1" aria-label="Minimum price per night">
+        </div>
+    </div>
+
+    <div class="listing-filter-field">
+        <label for="max-price">Maximum price</label>
+        <div class="listing-filter-input">
+            <span>&#8377;</span>
+            <input id="max-price" type="number" name="maxPrice" value="<%= typeof maxPrice !== 'undefined' ? maxPrice : '' %>" placeholder="Max" min="1" aria-label="Maximum price per night">
+        </div>
+    </div>
+
+    <button class="listing-filter-submit" type="submit">
+        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+        Apply filters
+    </button>
+</form>

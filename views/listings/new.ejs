@@ -1,0 +1,75 @@
+<% layout('layouts/boilerplates.ejs') %>
+
+<main class="listing-form-page">
+    <section class="listing-form-header">
+        <p class="listings-eyebrow">Share a special place</p>
+        <h1>Create a new listing</h1>
+        <p>Tell travelers what makes your place worth discovering.</p>
+    </section>
+
+    <form class="listing-form" method="POST" action="/listings" enctype="multipart/form-data" novalidate onsubmit="this.classList.add('was-validated'); return this.checkValidity();">
+        <div class="listing-form-grid">
+            <div class="listing-form-field listing-form-field-wide">
+                <label for="title">Listing title</label>
+                <input type="text" id="title" name="listing[title]" placeholder="e.g. Sunlit cabin by the lake" minlength="3" maxlength="100" required>
+                <div class="invalid-feedback">Enter a title between 3 and 100 characters.</div>
+                <div class="valid-feedback">Looks good!</div>
+            </div>
+
+            <div class="listing-form-field listing-form-field-wide">
+                <label for="description">Description</label>
+                <textarea id="description" name="listing[description]" placeholder="Describe the experience guests can expect..." rows="5" minlength="20" maxlength="1000" required></textarea>
+                <div class="invalid-feedback">Enter a description between 20 and 1000 characters.</div>
+                <div class="valid-feedback">Looks good!</div>
+            </div>
+
+            <div class="listing-form-field">
+                <label for="category">Stay category</label>
+                <select id="category" name="listing[category]" required>
+                    <option value="rooms">Rooms</option>
+                    <option value="farms">Farms</option>
+                    <option value="amazing-views">Amazing views</option>
+                    <option value="iconic-sites">Iconic sites</option>
+                    <option value="beach">Beach</option>
+                    <option value="cabins">Cabins</option>
+                </select>
+            </div>
+
+            <div class="listing-form-field listing-form-field-wide">
+                <label for="image">Upload image <span>(optional, max 5 MB)</span></label>
+                <input type="file" id="image" name="image" accept="image/*">
+                <div class="invalid-feedback">Choose a valid image file.</div>
+                
+            </div>
+
+            <div class="listing-form-field">
+                <label for="price">Price per night</label>
+                <div class="listing-input-prefix">
+                    <span>&#8377;</span>
+                    <input type="number" id="price" name="listing[price]" placeholder="1500" min="1" max="1000000" step="1" required>
+                    <div class="invalid-feedback">Enter a price between &#8377;1 and &#8377;10,00,000.</div>
+                    
+                </div>
+            </div>
+
+            <div class="listing-form-field">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="listing[location]" placeholder="e.g. Goa" minlength="2" maxlength="80" pattern="[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .'-]*" required>
+                <div class="invalid-feedback">Use 2-80 letters, spaces, or hyphens.</div>
+                
+            </div>
+
+            <div class="listing-form-field">
+                <label for="country">Country</label>
+                <input type="text" id="country" name="listing[country]" placeholder="e.g. India" minlength="2" maxlength="80" pattern="[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .'-]*" required>
+                <div class="invalid-feedback">Use 2-80 letters, spaces, or hyphens.</div>
+                
+            </div>
+        </div>
+
+        <div class="listing-form-actions">
+            <a href="/listings">Cancel</a>
+            <button type="submit"><i class="fa-solid fa-plus"></i> Create listing</button>
+        </div>
+    </form>
+</main>

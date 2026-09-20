@@ -1,0 +1,46 @@
+<% const currentSearchBy = typeof searchBy === 'undefined' ? 'all' : searchBy; %>
+<nav class="navbar navbar-expand-lg bg-light border-bottom border-3 border-dark sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/listings"><i class="fa-solid fa-house-tsunami"></i>   </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        
+        <a class="nav-link" href="/listings">Explore </a>
+        
+      </div>
+
+      <form class="navbar-search-form" method="GET" action="/listings" role="search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input
+          type="search"
+          name="search"
+          value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>"
+          placeholder="Search stays"
+          aria-label="Search stays"
+        >
+        <select name="searchBy" aria-label="Choose what to search">
+          <option value="all" <%= currentSearchBy === 'all' ? 'selected' : '' %>>Everything</option>
+          <option value="place" <%= currentSearchBy === 'place' ? 'selected' : '' %>>Place</option>
+          <option value="country" <%= currentSearchBy === 'country' ? 'selected' : '' %>>Country</option>
+          <option value="title" <%= currentSearchBy === 'title' ? 'selected' : '' %>>Title</option>
+        </select>
+        <button type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Search</span></button>
+      </form>
+
+      <div class="navbar-nav ms-auto navbar-auth-actions">
+        <a class="nav-link" href="/listings/new">Register your Haven</a>
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+          <form class="navbar-logout-form" method="POST" action="/users/logout">
+            <button class="navbar-auth-button navbar-logout-button" type="submit"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</button>
+          </form>
+        <% } else { %>
+          <a class="navbar-auth-button navbar-login-button" href="/users/login"><i class="fa-solid fa-arrow-right-to-bracket"></i> Log in</a>
+          <a class="navbar-auth-button navbar-signup-button" href="/users/signup"><i class="fa-solid fa-user-plus"></i> Sign up</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>

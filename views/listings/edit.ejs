@@ -1,0 +1,106 @@
+<% layout('layouts/boilerplates.ejs') %>
+
+<main class="listing-form-page">
+    <section class="listing-form-header">
+        <p class="listings-eyebrow">Keep your place up to date</p>
+        <h1>Edit listing</h1>
+        <p>Refresh the details so guests always see the best version of your stay.</p>
+    </section>
+
+    <form class="listing-form" method="POST" action="/listings/<%= listing._id %>?_method=PUT" enctype="multipart/form-data" novalidate onsubmit="this.classList.add('was-validated'); return this.checkValidity();">
+        <div class="listing-form-grid">
+            <div class="listing-form-field listing-form-field-wide">
+                <label for="title">Listing title</label>
+                <input type="text" id="title" name="listing[title]" value="<%= listing.title %>" minlength="3" maxlength="100" required>
+                <div class="invalid-feedback">Enter a title between 3 and 100 characters.</div>
+                <div class="valid-feedback">Looks good!</div>
+            </div>
+
+            <div class="listing-form-field listing-form-field-wide">
+                <label for="description">Description</label>
+                <textarea id="description" name="listing[description]" rows="5" minlength="20" maxlength="1000" required><%= listing.description %></textarea>
+                <div class="invalid-feedback">Enter a description between 20 and 1000 characters.</div>
+                <div class="valid-feedback">Looks good!</div>
+            </div>
+
+            <div class="listing-form-field">
+                <label for="category">Stay category</label>
+                <select id="category" name="listing[category]" required>
+                    <% const categories = [['rooms', 'Rooms'], ['farms', 'Farms'], ['amazing-views', 'Amazing views'], ['iconic-sites', 'Iconic sites'], ['beach', 'Beach'], ['cabins', 'Cabins']]; %>
+                    <% categories.forEach(([value, label]) => { %>
+                        <option value="<%= value %>" <%= listing.category === value ? 'selected' : '' %>><%= label %></option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div class="listing-form-field listing-form-field-wide">
+                <label for="image">Replace image <span>(optional, max 5 MB)</span></label>
+
+                <% if (listing.image && listing.image.url) { %>
+                    <div class="current-image-preview">
+                        <img src="<%= listing.image.url %>" alt="Current listing image" class="current-image-preview__img">
+                    </div>
+                <% } %>
+
+                <input type="file" id="image" name="image" accept="image/*">
+                <div class="invalid-feedback">Choose a valid image file.</div>
+                <div id="image-preview-wrapper" class="image-preview-wrapper" hidden>
+                    <img id="image-preview" src="" alt="Selected preview" class="image-preview-wrapper__img">
+                </div>
+            </div>
+
+            <div class="listing-form-field">
+                <label for="price">Price per night</label>
+                <div class="listing-input-prefix">
+                    <span>&#8377;</span>
+                    <input type="number" id="price" name="listing[price]" value="<%= listing.price %>" min="1" max="1000000" step="1" required>
+                    <div class="invalid-feedback">Enter a price between &#8377;1 and &#8377;10,00,000.</div>
+                    
+                </div>
+            </div>
+
+            <div class="listing-form-field">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="listing[location]" value="<%= listing.location %>" minlength="2" maxlength="80" pattern="[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .'-]*" required>
+                <div class="invalid-feedback">Use 2-80 letters, spaces, or hyphens.</div>
+                
+            </div>
+
+            <div class="listing-form-field">
+                <label for="country">Country</label>
+                <input type="text" id="country" name="listing[country]" value="<%= listing.country %>" minlength="2" maxlength="80" pattern="[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .'-]*" required>
+                <div class="invalid-feedback">Use 2-80 letters, spaces, or hyphens.</div>
+                
+            </div>
+        </div>
+
+        <div class="listing-form-actions">
+            <a href="/listings/<%= listing._id %>">Cancel</a>
+            <button type="submit"><i class="fa-solid fa-pen"></i> Save changes</button>
+        </div>
+    </form>
+</main>
+
+<script>
+    const imageInput = document.getElementById('image');
+    const imagePreviewWrapper = document.getElementById('image-preview-wrapper');
+    const imagePreview = document.getElementById('image-preview');
+
+    if (imageInput) {
+        imageInput.addEventListener('change', function () {
+            const file = this.files && this.files[0];
+            if (!file) {
+                imagePreviewWrapper.hidden = true;
+                imagePreview.src = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                imagePreview.src = event.target.result;
+                imagePreviewWrapper.hidden = false;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+</script>

@@ -1,0 +1,12 @@
+<% layout('layouts/boilerplates.ejs') %>
+
+<main class="error-page">
+    <div class="error-icon"><i class="fa-solid fa-compass"></i></div>
+    <p class="listings-eyebrow">Fresh Haven</p>
+    <h1><%= statusCode %></h1>
+    <p class="error-message"><%= message %></p>
+    <a class="listings-add-button" href="/listings">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to listings
+    </a>
+</main>
